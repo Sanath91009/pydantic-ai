@@ -184,8 +184,7 @@ export function codeResult(text: string): string {
   return text
 }
 
-/** One tool call as a quiet row; open it for the arguments, output, and result. A file change shows its diff
- * until the user folds it. */
+/** One tool call as a quiet row; open it for the arguments, output, diff, and result. A file change starts open. */
 export const ToolCard = memo(function ToolCard({ item: raw }: { item: Item }) {
   const cards = useContext(OpenCardsContext)
   const args = parseArgs(raw.args)
@@ -238,16 +237,7 @@ export const ToolCard = memo(function ToolCard({ item: raw }: { item: Item }) {
         row
       )}
       <WorkerChips item={raw} />
-      {open &&
-        (changed ? (
-          <div className="tool-diffs">
-            {item.diffs.map((diff, index) => (
-              <DiffView key={index} diff={diff} />
-            ))}
-          </div>
-        ) : (
-          <ToolDetails item={item} args={args} />
-        ))}
+      {open && <ToolDetails item={item} args={args} />}
     </div>
   )
 })
@@ -278,7 +268,10 @@ function ToolDetails({ item, args }: { item: Item; args: Args }) {
   }
   return (
     <div className="tool-body">
-      {Object.keys(args).length > 0 && (
+      {item.diffs.map((diff, index) => (
+        <DiffView key={index} diff={diff} />
+      ))}
+      {Object.keys(args).length > 0 && item.diffs.length === 0 && (
         <pre className="code-small">
           <code
             className="hljs"
