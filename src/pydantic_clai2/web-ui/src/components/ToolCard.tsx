@@ -190,7 +190,7 @@ export const ToolCard = memo(function ToolCard({ item: raw }: { item: Item }) {
   const args = parseArgs(raw.args)
   const item = { ...raw, diffs: argumentDiffs(raw, args) }
   const changed = item.diffs.length > 0
-  const open = cards.open.has(raw.id) !== changed
+  const open = cards.open.get(raw.id) ?? changed
   const openWorkspace = useContext(WorkspaceLinkContext)
   // The orchestrator's tools read as such only in its chat; a session's tool of the same name is another tool.
   const orchestrating = openWorkspace !== null && isWorkspaceTool(item.name)
@@ -207,7 +207,7 @@ export const ToolCard = memo(function ToolCard({ item: raw }: { item: Item }) {
   const firstLine = summary.subject.split('\n')[0] ?? ''
   const workspace = orchestrating && item.state !== 'running' && !refused ? workspaceOf(item, args) : null
   const row = (
-    <button className="row-toggle tool-row" onClick={() => cards.toggle(raw.id)} aria-expanded={open}>
+    <button className="row-toggle tool-row" onClick={() => cards.toggle(raw.id, open)} aria-expanded={open}>
       <span className="tool-icon">{summary.icon}</span>
       <span className={item.state === 'running' ? 'shimmer verb' : 'verb'}>{summary.verb}</span>
       <span className={summary.mono ? 'subject mono' : 'subject'} title={summary.subject}>
